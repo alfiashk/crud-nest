@@ -1,8 +1,10 @@
 # compiled output
+notes.txt
 /dist
 /node_modules
 /build
 src/user
+
 # Logs
 logs
 *.log

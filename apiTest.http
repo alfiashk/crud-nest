@@ -1,0 +1,19 @@
+
+//create new medical case
+POST http://localhost:3000/medical-case
+
+###
+// get all medical cases
+GET http://localhost:3000/medical-case
+
+###
+// get medical case with id
+GET http://localhost:3000/medical-case/1
+
+###
+// update medical case with id
+PUT http://localhost:3000/medical-case/1
+
+###
+// delete medical case with id
+DELETE http://localhost:3000/medical-case/1
