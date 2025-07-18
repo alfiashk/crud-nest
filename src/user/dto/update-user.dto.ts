@@ -7,7 +7,7 @@ export class UpdateUserDto {
     @Matches(/(?=.*\d)(?=.*[a-z])(?=.*[A-Z])/, {
         message: 'Username must contain at least one uppercase letter, one lowercase letter, and one number',
     })
-    readonly userName: string;
+    userName: string;
 
     @IsOptional()
     @IsEnum(userRole)
