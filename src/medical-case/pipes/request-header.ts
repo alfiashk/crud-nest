@@ -4,7 +4,7 @@ import {
   ExecutionContext,
 } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
-import { validateOrReject } from 'class-validator';
+import { validate } from 'class-validator';
 
 export const RequestHeader = createParamDecorator(
   async (targetDto: any, ctx: ExecutionContext) => {
@@ -13,7 +13,7 @@ export const RequestHeader = createParamDecorator(
       excludeExtraneousValues: true,
     });
     try {
-      await validateOrReject(dto);
+      await validate(dto);
     } catch (error) {
       throw new BadRequestException('token not found');
     }
