@@ -1,16 +1,13 @@
-import { ConsoleLogger, Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateMedicalCaseDto } from './dto/create-medical-case.dto';
 import { UpdateMedicalCaseDto } from './dto/update-medical-case.dto';
-import { Model, PreMiddlewareFunction } from 'mongoose';
+import { Model } from 'mongoose';
 import {
   MedicalCase,
   MedicalCaseDocument,
 } from './schemas/medical-case.schema';
 import { InjectModel } from '@nestjs/mongoose';
 import { idParamDto } from './dto/idParamDto';
-import { exitCode, title } from 'process';
-import { ConnectableObservable } from 'rxjs';
-import e from 'express';
 import { UpdateStatusDto } from './dto/update-status-medical-case.dto';
 
 @Injectable()

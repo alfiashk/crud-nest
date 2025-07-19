@@ -9,6 +9,7 @@ import {
   Delete,
   HttpCode,
   HttpStatus,
+  ValidationPipe,
 } from '@nestjs/common';
 import { MedicalCaseService } from './medical-case.service';
 import { CreateMedicalCaseDto } from './dto/create-medical-case.dto';
@@ -16,6 +17,8 @@ import { UpdateMedicalCaseDto } from './dto/update-medical-case.dto';
 import { MedicalCase } from './schemas/medical-case.schema';
 import { idParamDto } from './dto/idParamDto';
 import { UpdateStatusDto } from './dto/update-status-medical-case.dto';
+import { HeaderDto } from './dto/headers.dto';
+import { RequestHeader } from './pipes/request-header';
 
 declare module 'express' {
   interface Request {
@@ -79,7 +82,20 @@ export class MedicalCaseController {
   }
 
   @Delete(':id')
-  remove(@Param() id: idParamDto) {
-    return this.medicalCaseService.remove(id);
+  async remove(@Param() id: idParamDto) {
+    return await this.medicalCaseService.remove(id);
   }
+
+  @Patch('head/test')
+  async header(
+    @RequestHeader(
+      new ValidationPipe({
+        whitelist: true,
+        validateCustomDecorators: true,
+      }),
+    )
+    header: HeaderDto,
+  ) {
+    return header;
+  }clear
 }
