@@ -12,15 +12,7 @@ import { AuthModule } from './auth/auth.module';
     ConfigModule.forRoot({
       isGlobal: true,
     }),
-
-    MongooseModule.forRootAsync({
-      imports: [ConfigModule],
-      useFactory: async (configService: ConfigService) => ({
-        uri: configService.get<string>('DB_URI'),
-      }),
-      inject: [ConfigService],
-    }),
-
+    MongooseModule.forRoot(process.env.MONGO_URI || 'URI'),
     UserModule,
     AuthModule
   ],
