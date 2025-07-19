@@ -90,12 +90,11 @@ export class MedicalCaseController {
   async header(
     @RequestHeader(
       new ValidationPipe({
-        whitelist: true,
         validateCustomDecorators: true,
       }),
     )
     header: HeaderDto,
   ) {
-    return header;
-  }clear
+    return header['access-token'];
+  }
 }
