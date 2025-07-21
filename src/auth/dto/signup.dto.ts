@@ -28,6 +28,4 @@ export class SignUpDto {
   })
   readonly password: string;
 
-  // @IsEmpty({ message: "You cannot pass medical case id" })
-  // readonly cases: Cases;
 }
