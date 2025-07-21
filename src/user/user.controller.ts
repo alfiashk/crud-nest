@@ -15,6 +15,7 @@ import { User } from './user.schema';
 
 import { AuthGuard } from '@nestjs/passport';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { MedicalCase } from 'src/medical-case/schemas/medical-case.schema';
 
 @Controller('users')
 export class UserController {
@@ -34,6 +35,18 @@ export class UserController {
   @UseGuards(AuthGuard('jwt'))
   async findMe(@Req() req: Request) {
     return await this.userService.findMe(req['user'].id);
+  }
+
+  @Get("/activeCases")
+  @UseGuards(AuthGuard('jwt'))
+  async findCases(@Req() req): Promise<MedicalCase[]> {
+    return await this.userService.activeCases(req.user.id);
+  }
+
+  @Get("/allCases")
+  @UseGuards(AuthGuard('jwt'))
+  async allCases(@Req() req): Promise<MedicalCase[]> {
+    return await this.userService.activeCases(req.user.id);
   }
 
   @Put('/:id')

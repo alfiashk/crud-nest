@@ -5,14 +5,17 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from './user.schema';
-import mongoose from 'mongoose';
+import mongoose, { Model, ObjectId } from 'mongoose';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { MedicalCase, MedicalCaseDocument } from 'src/medical-case/schemas/medical-case.schema';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectModel(User.name)
     private userModel: mongoose.Model<User>,
+    @InjectModel(MedicalCase.name)
+    private medicalCaseModel: Model<MedicalCaseDocument>,
   ) {}
 
   //find all user
@@ -48,6 +51,33 @@ export class UserService {
       throw new NotFoundException('User not found!');
     }
     return userOne;
+  }
+
+
+  //find my active medical cases
+  async activeCases(id: ObjectId): Promise<MedicalCase[]> {
+    const isValidId = mongoose.isValidObjectId(id);
+    if (!isValidId) {
+      throw new BadRequestException('Please enter valid id');
+    }
+    const medicalCases = await this.medicalCaseModel.find({userId: String(id), status:"in-progress"}).exec();
+    if (!medicalCases) {
+      throw new NotFoundException('Medical Case not found!');
+    }
+    return medicalCases;
+  }
+
+  //find my medical cases
+  async allCases(id: ObjectId): Promise<MedicalCase[]> {
+    const isValidId = mongoose.isValidObjectId(id);
+    if (!isValidId) {
+      throw new BadRequestException('Please enter valid id');
+    }
+    const medicalCases = await this.medicalCaseModel.find({userId: String(id)}).exec();
+    if (!medicalCases) {
+      throw new NotFoundException('Medical Case not found!');
+    }
+    return medicalCases;
   }
 
   //update user
