@@ -15,10 +15,6 @@ export class User {
     @Prop({ enum: userRole, default: userRole.USER })
     role?: userRole;
 
-    //medical cases ref
-    @Prop({ type:[mongoose.Schema.Types.ObjectId], ref: 'MedicalCase' })
-    medicalCase: MedicalCase[];
-
     @Prop({required: true})
     password: string;
 }
