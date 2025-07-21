@@ -1,4 +1,6 @@
-import { Prop,Schema, SchemaFactory } from "@nestjs/mongoose";
+import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
+import { MedicalCase } from "../medical-case/schemas/medical-case.schema";
+import mongoose from "mongoose";
 
 export enum userRole{
     ADMIN = 'admin',
@@ -14,8 +16,8 @@ export class User{
     role?: userRole;
 
     //medical cases ref
-    // @Prop({ type: mongoose.Schema.ObjectId, ref: 'Cases' })
-    // cases: Cases;
+    @Prop({ type:mongoose.Schema.ObjectId, ref: 'MedicalCase' })
+    medicalCase: MedicalCase;
 
     @Prop({required: true})
     password: string;
