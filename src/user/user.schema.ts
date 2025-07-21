@@ -9,15 +9,15 @@ export enum userRole {
 
 @Schema({ timestamps: true })
 export class User {
-  @Prop({ required: true, unique: true })
-  userName: string;
+    @Prop({ required: true, unique: true })
+    userName: string;
 
-  @Prop({ enum: userRole, default: userRole.USER })
-  role?: userRole;
+    @Prop({ enum: userRole, default: userRole.USER })
+    role?: userRole;
 
     //medical cases ref
-    @Prop({ type:mongoose.Schema.ObjectId, ref: 'MedicalCase' })
-    medicalCase: MedicalCase;
+    @Prop({ type:[mongoose.Schema.Types.ObjectId], ref: 'MedicalCase' })
+    medicalCase: MedicalCase[];
 
     @Prop({required: true})
     password: string;
