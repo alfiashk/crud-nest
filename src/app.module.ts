@@ -8,7 +8,6 @@ import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { MedicalCaseModule } from './medical-case/medical-case.module';
 
-
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -19,7 +18,7 @@ import { MedicalCaseModule } from './medical-case/medical-case.module';
     AuthModule,
     MedicalCaseModule,
   ],
-  
+
   controllers: [AppController],
   providers: [AppService],
 })

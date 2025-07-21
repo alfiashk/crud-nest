@@ -9,6 +9,8 @@ import {
   Delete,
   HttpCode,
   HttpStatus,
+  Req,
+  UseGuards,
 } from '@nestjs/common';
 import { MedicalCaseService } from './medical-case.service';
 import { CreateMedicalCaseDto } from './dto/create-medical-case.dto';
@@ -16,6 +18,7 @@ import { UpdateMedicalCaseDto } from './dto/update-medical-case.dto';
 import { MedicalCase } from './schemas/medical-case.schema';
 import { idParamDto } from './dto/idParamDto';
 import { UpdateStatusDto } from './dto/update-status-medical-case.dto';
+import { AuthGuard } from '@nestjs/passport';
 
 declare module 'express' {
   interface Request {
@@ -28,29 +31,38 @@ declare module 'express' {
 
 @Controller('medical-case')
 export class MedicalCaseController {
-  //? injecting medicalCase services in the controller with readonly mode,
-  //? because we don't want to reassign service  with another service
-
   constructor(private readonly medicalCaseService: MedicalCaseService) {}
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
+  @UseGuards(AuthGuard('jwt'))
   async create(
     @Body() createMedicalCaseDto: CreateMedicalCaseDto,
+    @Req() req: Request,
   ): Promise<MedicalCase> {
-    const newCase = await this.medicalCaseService.create(createMedicalCaseDto);
+    const newCase = await this.medicalCaseService.create(
+      createMedicalCaseDto,
+      req['user'].id,
+    );
     return newCase;
   }
 
   @Get()
-  findAll(): Promise<MedicalCase[]> {
-    return this.medicalCaseService.findAll();
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(AuthGuard('jwt'))
+  findAll(@Req() req: Request): Promise<MedicalCase[]> {
+    return this.medicalCaseService.findAll(req['user'].id);
   }
 
   @Get(':id')
-  async findOne(@Param() id: idParamDto): Promise<MedicalCase> {
-    console.log('param we got form the request', id);
-    const medicalCase = await this.medicalCaseService.findOne(id);
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(AuthGuard('jwt'))
+  async findOne(
+    @Param() caseId: idParamDto,
+    @Req() req: Request,
+  ): Promise<MedicalCase> {
+    const userId = req['user'].id;
+    const medicalCase = await this.medicalCaseService.findOne(caseId, userId);
     return medicalCase;
   }
 

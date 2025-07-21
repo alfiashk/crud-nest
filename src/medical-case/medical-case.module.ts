@@ -4,6 +4,7 @@ import { MedicalCaseController } from './medical-case.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { MedicalCase, MedicalCaseSchema } from './schemas/medical-case.schema';
 import { APP_PIPE } from '@nestjs/core';
+import { User, UserSchema } from 'src/user/user.schema';
 
 @Module({
   controllers: [MedicalCaseController],
@@ -25,6 +26,7 @@ import { APP_PIPE } from '@nestjs/core';
   imports: [
     MongooseModule.forFeature([
       { name: MedicalCase.name, schema: MedicalCaseSchema },
+      { name: User.name, schema: UserSchema },
     ]),
   ],
 })

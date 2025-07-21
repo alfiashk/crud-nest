@@ -1,30 +1,42 @@
-import { ConsoleLogger, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConsoleLogger,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { CreateMedicalCaseDto } from './dto/create-medical-case.dto';
 import { UpdateMedicalCaseDto } from './dto/update-medical-case.dto';
-import { Model, PreMiddlewareFunction } from 'mongoose';
+import { Model } from 'mongoose';
 import {
   MedicalCase,
   MedicalCaseDocument,
 } from './schemas/medical-case.schema';
 import { InjectModel } from '@nestjs/mongoose';
 import { idParamDto } from './dto/idParamDto';
-import { exitCode, title } from 'process';
-import { ConnectableObservable } from 'rxjs';
-import e from 'express';
 import { UpdateStatusDto } from './dto/update-status-medical-case.dto';
+import { User } from 'src/user/user.schema';
 
 @Injectable()
 export class MedicalCaseService {
   constructor(
     @InjectModel(MedicalCase.name)
     private medicalCaseModel: Model<MedicalCaseDocument>,
+    @InjectModel(User.name) private userModel: Model<User>,
   ) {}
 
   async create(
     createMedicalCaseDto: CreateMedicalCaseDto,
+    id: string,
   ): Promise<MedicalCase> {
     try {
-      console.log('hello im here in create');
+      const user = await this.userModel.findById(id).select('-password').exec();
+      if (!user) {
+        throw new NotFoundException('User not found');
+      }
+      if (user['role'] !== 'admin') {
+        throw new UnauthorizedException('User is not an admin');
+      }
       const newCase = new this.medicalCaseModel({
         title: createMedicalCaseDto.title,
         description: createMedicalCaseDto.description,
@@ -32,23 +44,30 @@ export class MedicalCaseService {
       });
       return await newCase.save();
     } catch (error) {
-      console.log('there is some error ');
-      throw new Error(error.message);
+      if (
+        error instanceof NotFoundException ||
+        error instanceof UnauthorizedException
+      ) {
+        throw error;
+      }
+      throw new InternalServerErrorException();
     }
   }
 
-  async findAll(): Promise<MedicalCase[]> {
-    const cases = await this.medicalCaseModel.find().exec();
+  async findAll(id: string): Promise<MedicalCase[]> {
+    const cases = await this.medicalCaseModel
+      .find({ userId: id.toString() })
+      .exec();
     if (!cases || cases.length === 0) {
       throw new NotFoundException('No medical cases found');
     }
     return cases;
   }
 
-  async findOne(id: idParamDto): Promise<MedicalCase> {
-    const caseId = id.id;
+  async findOne(params: idParamDto, userId: string): Promise<MedicalCase> {
+    const caseId = params.id;
     const medicalCase = await this.medicalCaseModel
-      .findById({ _id: caseId })
+      .findById({ _id: caseId, userId })
       .exec();
     if (!medicalCase) {
       throw new NotFoundException();
@@ -57,8 +76,8 @@ export class MedicalCaseService {
     return medicalCase;
   }
 
-  async update(id: idParamDto, updateMedicalCaseDto: UpdateMedicalCaseDto) {
-    const caseId = id.id;
+  async update(params: idParamDto, updateMedicalCaseDto: UpdateMedicalCaseDto) {
+    const caseId = params.id;
     const existingMedicalCase = await this.medicalCaseModel
       .findByIdAndUpdate(caseId, updateMedicalCaseDto, { new: true })
       .exec();
@@ -69,8 +88,8 @@ export class MedicalCaseService {
     return existingMedicalCase;
   }
 
-  async updateStatus(id: idParamDto, updateStatusDto: UpdateStatusDto) {
-    const caseId = id.id;
+  async updateStatus(params: idParamDto, updateStatusDto: UpdateStatusDto) {
+    const caseId = params.id;
     console.log('this is status: ', updateStatusDto.status);
     const existingMedicalCase = await this.medicalCaseModel
       .findByIdAndUpdate(caseId, updateStatusDto, { new: true })
@@ -82,10 +101,11 @@ export class MedicalCaseService {
     return existingMedicalCase;
   }
 
-  async remove(id: idParamDto): Promise<MedicalCase> {
-    const deleteCase = await this.medicalCaseModel.findByIdAndDelete(id.id);
+  async remove(params: idParamDto): Promise<MedicalCase> {
+    const caseId = params.id;
+    const deleteCase = await this.medicalCaseModel.findByIdAndDelete(caseId);
     if (!deleteCase) {
-      throw new NotFoundException(`Medical case with ID ${id.id} not found`);
+      throw new NotFoundException(`Medical case with ID ${caseId} not found`);
     }
     return deleteCase;
   }
