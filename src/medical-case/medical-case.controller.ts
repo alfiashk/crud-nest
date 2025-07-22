@@ -29,65 +29,90 @@ declare module 'express' {
   }
 }
 
+type Data = {
+  data: MedicalCase[] | MedicalCase;
+  message: string;
+  success: boolean;
+};
+
+@UseGuards(AuthGuard('jwt'))
 @Controller('medical-case')
 export class MedicalCaseController {
   constructor(private readonly medicalCaseService: MedicalCaseService) {}
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  @UseGuards(AuthGuard('jwt'))
   async create(
     @Body() createMedicalCaseDto: CreateMedicalCaseDto,
     @Req() req: Request,
-  ): Promise<MedicalCase> {
+  ): Promise<Data> {
     const newCase = await this.medicalCaseService.create(
       createMedicalCaseDto,
       req['user'].id,
     );
-    return newCase;
+    return {
+      data: newCase,
+      message: 'Medical case created successfully',
+      success: true,
+    };
   }
 
   @Get()
   @HttpCode(HttpStatus.OK)
-  @UseGuards(AuthGuard('jwt'))
-  findAll(@Req() req: Request): Promise<MedicalCase[]> {
-    return this.medicalCaseService.findAll(req['user'].id);
+  async findAll(@Req() req: Request): Promise<Data> {
+    const cases = await this.medicalCaseService.findAll(req['user'].id);
+    return {
+      data: cases,
+      message: 'Medical cases fetched successfully',
+      success: true,
+    };
   }
 
   @Get(':id')
   @HttpCode(HttpStatus.OK)
-  @UseGuards(AuthGuard('jwt'))
   async findOne(
     @Param() caseId: idParamDto,
     @Req() req: Request,
-  ): Promise<MedicalCase> {
+  ): Promise<Data> {
     const userId = req['user'].id;
     const medicalCase = await this.medicalCaseService.findOne(caseId, userId);
-    return medicalCase;
+    return {
+      data: medicalCase,
+      message: 'Medical case fetched successfully',
+      success: true,
+    };
   }
 
   @Put(':id')
   async update(
     @Param() id: idParamDto,
     @Body() updateMedicalCaseDto: UpdateMedicalCaseDto,
-  ) {
-    const updatedCase = this.medicalCaseService.update(
+  ): Promise<Data> {
+    const updatedCase = await this.medicalCaseService.update(
       id,
       updateMedicalCaseDto,
     );
-    return updatedCase;
+    return {
+      data: updatedCase,
+      message: 'Medical case updated successfully',
+      success: true,
+    };
   }
 
   @Patch(':id')
   async updateStatus(
     @Param() id: idParamDto,
     @Body() updateStatusDto: UpdateStatusDto,
-  ) {
+  ): Promise<Data> {
     const updatedCase = await this.medicalCaseService.updateStatus(
       id,
       updateStatusDto,
     );
-    return updatedCase;
+    return {
+      data: updatedCase,
+      message: 'Medical case status updated successfully',
+      success: true,
+    };
   }
 
   @Delete(':id')

@@ -1,5 +1,4 @@
 import {
-  ConsoleLogger,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -88,7 +87,10 @@ export class MedicalCaseService {
     return existingMedicalCase;
   }
 
-  async updateStatus(params: idParamDto, updateStatusDto: UpdateStatusDto) {
+  async updateStatus(
+    params: idParamDto,
+    updateStatusDto: UpdateStatusDto,
+  ): Promise<MedicalCase> {
     const caseId = params.id;
     console.log('this is status: ', updateStatusDto.status);
     const existingMedicalCase = await this.medicalCaseModel
@@ -101,7 +103,7 @@ export class MedicalCaseService {
     return existingMedicalCase;
   }
 
-  async remove(params: idParamDto): Promise<MedicalCase> {
+  async remove(params: idParamDto): Promise<MedicalCase | null> {
     const caseId = params.id;
     const deleteCase = await this.medicalCaseModel.findByIdAndDelete(caseId);
     if (!deleteCase) {

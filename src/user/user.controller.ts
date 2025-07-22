@@ -1,35 +1,31 @@
 import {
-  Controller,
+  Put,
   Get,
-  Post,
+  Req,
   Body,
-  Patch,
   Param,
   Delete,
-  Put,
-  Req,
+  Request,
   UseGuards,
+  UseFilters,
+  Controller,
 } from '@nestjs/common';
-import { UserService } from './user.service';
 import { User } from './user.schema';
-
 import { AuthGuard } from '@nestjs/passport';
+import { UserService } from './user.service';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { MedicalCase } from 'src/medical-case/schemas/medical-case.schema';
+import { HttpExceptionFilter } from 'src/filters/http-exception.filter';
 
-@Controller('users')
+@UseFilters(new HttpExceptionFilter())
+@Controller('/users')
 export class UserController {
   constructor(private userService: UserService) {}
 
-  @Get('allUsers')
+  @Get('/allUsers')
   async findAll(): Promise<User[]> {
     return this.userService.findAll();
   }
-
-  // @Get('/:id')
-  // async findOne(@Param('id') id: string) {
-  //   return await this.userService.findOne(id);
-  // }
 
   @Get('/me')
   @UseGuards(AuthGuard('jwt'))
@@ -37,16 +33,16 @@ export class UserController {
     return await this.userService.findMe(req['user'].id);
   }
 
-  @Get("/activeCases")
+  @Get('/activeCases')
   @UseGuards(AuthGuard('jwt'))
-  async findCases(@Req() req): Promise<MedicalCase[]> {
-    return await this.userService.activeCases(req.user.id);
+  async findCases(@Req() req: Request): Promise<MedicalCase[]> {
+    return await this.userService.activeCases(req['user'].id);
   }
 
-  @Get("/allCases")
+  @Get('/allCases')
   @UseGuards(AuthGuard('jwt'))
-  async allCases(@Req() req): Promise<MedicalCase[]> {
-    return await this.userService.activeCases(req.user.id);
+  async allCases(@Request() req: Request): Promise<MedicalCase[]> {
+    return await this.userService.activeCases(req['user'].id);
   }
 
   @Put('/:id')
@@ -55,7 +51,7 @@ export class UserController {
     return this.userService.editUser(id, updateUserDto);
   }
 
-  @Delete(':id')
+  @Delete('/:id')
   @UseGuards(AuthGuard('jwt'))
   async remove(@Param('id') id: string) {
     return this.userService.deleteUser(id);
