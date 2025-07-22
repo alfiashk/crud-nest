@@ -3,17 +3,33 @@ import { AuthService } from './auth.service';
 import { SignUpDto } from './dto/signup.dto';
 import { LoginDto } from './dto/login.dto';
 
+type Data = {
+  token: string;
+  message: string;
+  success: boolean;
+};
+
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
 
   @Post('/signup')
-  signup(@Body() signUpDto: SignUpDto): Promise<{ token: string }> {
-    return this.authService.signUp(signUpDto);
+  async signup(@Body() signUpDto: SignUpDto): Promise<Data> {
+    const token = await this.authService.signUp(signUpDto);
+    return {
+      token: token.token,
+      message: 'User created successfully',
+      success: true,
+    };
   }
 
   @Post('/login')
-  login(@Body() loginDto: LoginDto): Promise<{ token: string }> {
-    return this.authService.login(loginDto);
+  async login(@Body() loginDto: LoginDto): Promise<Data> {
+    const token = await this.authService.login(loginDto);
+    return {
+      token: token.token,
+      message: 'User logged in successfully',
+      success: true,
+    };
   }
 }

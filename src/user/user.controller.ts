@@ -1,37 +1,33 @@
 import {
-  Controller,
+  Put,
   Get,
-  Post,
+  Req,
   Body,
-  Patch,
   Param,
   Delete,
-  Put,
-  Req,
+  Request,
   UseGuards,
+  UseFilters,
+  Controller,
 } from '@nestjs/common';
-import { UserService } from './user.service';
 import { User } from './user.schema';
-
 import { AuthGuard } from '@nestjs/passport';
+import { UserService } from './user.service';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { MedicalCase } from 'src/medical-case/schemas/medical-case.schema';
+import { HttpExceptionFilter } from 'src/filters/http-exception.filter';
 
-@Controller('users')
+@UseFilters(new HttpExceptionFilter())
+@Controller('/users')
 export class UserController {
   constructor(private userService: UserService) {}
 
   //admin view
-  @Get('allUsers')
+  @Get('/allUsers')
   @UseGuards(AuthGuard('jwt'))
   async findAll(@Req() req: Request): Promise<User[]> {
     return this.userService.findAll(req['user'].id);
   }
-
-  // @Get('/:id')
-  // async findOne(@Param('id') id: string) {
-  //   return await this.userService.findOne(id);
-  // }
 
   @Get('/me')
   @UseGuards(AuthGuard('jwt'))
@@ -39,15 +35,15 @@ export class UserController {
     return await this.userService.findMe(req['user'].id);
   }
 
-  @Get("/activeCases")
+  @Get('/activeCases')
   @UseGuards(AuthGuard('jwt'))
   async findCases(@Req() req: Request): Promise<MedicalCase[]> {
     return await this.userService.activeCases(req['user'].id);
   }
 
-  @Get("/allCases")
+  @Get('/allCases')
   @UseGuards(AuthGuard('jwt'))
-  async allCases(@Req() req: Request): Promise<MedicalCase[]> {
+  async allCases(@Request() req: Request): Promise<MedicalCase[]> {
     return await this.userService.activeCases(req['user'].id);
   }
 
@@ -57,7 +53,7 @@ export class UserController {
     return this.userService.editUser(id, updateUserDto);
   }
 
-  @Delete('/deleteUser/:id')
+  @Delete('/deleteUser//:id')
   @UseGuards(AuthGuard('jwt'))
   async remove(@Param('id') id: string) {
     return this.userService.deleteUser(id);

@@ -6,7 +6,7 @@ import { UserSchema } from 'src/user/user.schema';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { JwtStrategy } from './jwt.stratergy';
+import { JwtStrategy } from './jwt.strategy';
 
 @Module({
   imports: [
@@ -18,12 +18,11 @@ import { JwtStrategy } from './jwt.stratergy';
           secret: config.get<string>('JWT_SECRET'),
           signOptions: {
             expiresIn: config.get<string | number>('JWT_EXPIRE'),
-          }
-        }
-      } 
+          },
+        };
+      },
     }),
     MongooseModule.forFeature([{ name: 'User', schema: UserSchema }]),
-
   ],
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy],
